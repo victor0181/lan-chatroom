@@ -1,0 +1,16 @@
+# 换行符统一策略
+* text=auto
+
+# Windows 批处理必须是 CRLF，且内容为纯 ASCII（项目红线：混入中文会整行错位）
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 二进制资源不做换行转换
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.db   binary

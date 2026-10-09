@@ -1,0 +1,18 @@
+.venv/
+node_modules/
+data/
+backups/
+logs/
+build/
+__pycache__/
+*.spec
+artifacts/
+edge-profile*/
+edge-home.png
+
+# 测试草稿与中间产物（不纳入版本管理）
+_scratch/
+*.r5bak
+
+# 工作区元数据
+.workbuddy/
