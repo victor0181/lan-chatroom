@@ -326,7 +326,9 @@ class Launcher(tk.Tk):
                             self.log_offset = handle.tell()
                         for line in chunk.splitlines():
                             if line.strip():
-                                self.events.put(("log", (line, "server")))
+                                # 服务自己打的安全提醒标成橙色，免得淹没在一片灰色的常规输出里。
+                                tag = "warn" if line.lstrip().startswith("[安全提醒]") else "server"
+                                self.events.put(("log", (line, tag)))
             except OSError:
                 pass
             time.sleep(0.8)

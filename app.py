@@ -32,7 +32,10 @@ AVATAR_DIR.mkdir(parents=True, exist_ok=True)
 EMOJI_DIR = BASE_DIR / "emojis"
 EMOJI_DIR.mkdir(parents=True, exist_ok=True)
 ADMIN_USERNAME = os.getenv("CHAT_ADMIN_USER", "admin")
-ADMIN_PASSWORD = os.getenv("CHAT_ADMIN_PASSWORD", "admin123")
+# 出厂默认密码。只用在两处：首次建库时写入，以及每次启动体检「有没有改过」。
+# ⚠️ 这个值随源码公开（仓库是公开的），所以「没改过」= 同一局域网里谁都能登管理后台。
+DEFAULT_ADMIN_PASSWORD = "admin123"
+ADMIN_PASSWORD = os.getenv("CHAT_ADMIN_PASSWORD", DEFAULT_ADMIN_PASSWORD)
 MUTE_MINUTES = 2
 KICK_COOLDOWN_SECONDS = 3 * 60
 # ==================== 防刷屏 ====================
@@ -1149,6 +1152,30 @@ def get_db() -> sqlite3.Connection:
     return conn
 
 
+def warn_default_admin_password(db: sqlite3.Connection) -> bool:
+    """启动体检：管理员还在用出厂默认密码，就打印一条告警。
+
+    为什么需要它：默认密码写在源码里，而源码是公开的。只要管理员没改过密码，
+    同一局域网内的任何人（包括学生）用 admin / admin123 就能登进管理后台 ——
+    删任意消息、踢人、全站禁言 30 分钟、任命房主、改任意房间公告。
+
+    这里**不阻止启动**（老师可能正打算去改），只保证这件事看得见：
+    输出落进 logs/server.log，控制台「运行记录」会把带 [安全提醒] 前缀的行标成橙色。
+    返回是否真的告警 —— 让自检脚本能直接断言，而不是靠人肉翻日志。
+    """
+    row = db.execute("SELECT password_hash FROM users WHERE username = ?", (ADMIN_USERNAME,)).fetchone()
+    if row is None:
+        return False
+    if not verify_password(DEFAULT_ADMIN_PASSWORD, row["password_hash"]):
+        return False
+    print(
+        f"[安全提醒] 管理员「{ADMIN_USERNAME}」仍在使用出厂默认密码，"
+        "同一局域网内任何人都能借此登入管理后台（删消息 / 踢人 / 禁言 / 改公告）。"
+        "请用管理员账号登录，在「我的资料 → 修改密码」里改掉；改完这条提醒会自动消失。"
+    )
+    return True
+
+
 def init_db() -> None:
     with closing(get_db()) as db:
         db.executescript(
@@ -1283,6 +1310,8 @@ def init_db() -> None:
                 (ADMIN_USERNAME, hash_password(ADMIN_PASSWORD), "管理员", now_text()),
             )
         db.commit()
+        # 每次启动体检一次：管理员是不是还在用出厂默认密码（见函数注释）。
+        warn_default_admin_password(db)
     # 老版本只有一份全局公告（根目录的 公告.txt）。搬进「公告/lobby.txt」，只做一次。
     _migrate_legacy_announcement()
 
