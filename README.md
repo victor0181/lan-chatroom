@@ -5,6 +5,7 @@
 ![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D4?logo=windows&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 > **一台教师机跑服务，学生机开浏览器就能用。** 不需要外网、不需要服务器、不需要配置域名 —— 双击一个 `.bat` 就部署完成。
 
@@ -258,4 +259,8 @@ npm run dev
 
 ## 许可
 
-本项目暂未指定开源协议。如需正式授权条款，请先补充 `LICENSE` 文件。
+本项目基于 [MIT License](LICENSE) 开源，可自由使用、修改、分发（含商业用途），
+保留版权声明即可。详见 [LICENSE](LICENSE)。
+
+> 需要注意：代码是 MIT，但仓库里的 `avatars/` 是**学生上传的真实头像**，
+> 请勿直接用于你自己的部署 —— 换成你们自己的素材。
